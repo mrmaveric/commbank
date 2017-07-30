@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/mrmaveric/commbank/commbanklib"
 )
@@ -11,20 +12,28 @@ import (
 func main() {
 
 	if len(os.Args) < 2 {
-		log.Fatal("Please provied CSV files")
+		fmt.Println("Usage: ", os.Args[0], "[>1 CSV file]")
+		os.Exit(1)
 	}
 
 	transactions := commbanklib.MakeTransactionList(os.Args[1:]...)
 
-	fmt.Println(transactions[0].Date, transactions[0].Ammount, transactions[0].Description, transactions[0].Balance)
-
 	var total float32
+	var count int32
 
-	for _, t := range transactions {
-		total += t.Ammount
+	start, err := time.Parse("2/1/06", "1/7/17")
+	finish, err := time.Parse("2/1/06", "1/8/17")
+
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	//total = total / float32(tally)
+	for _, t := range transactions.Debits().After(start).Before(finish).Contains("mcd") {
+		fmt.Println(t)
+		total += t.Ammount
+		count++
+	}
 
 	fmt.Println("Total: ", total)
+	fmt.Println("Transaction Count: ", count)
 }
