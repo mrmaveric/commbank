@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"./commbanklib"
+	"github.com/mrmaveric/commbank/commbanklib"
 )
 
 func main() {
