@@ -12,7 +12,7 @@ import (
 
 type Transaction struct {
 	Date        time.Time
-	Ammount     float32
+	Amount      float32
 	Balance     float32
 	Description string
 	Debit       bool
@@ -40,13 +40,13 @@ func MakeTransactionList(source ...string) TransactionList {
 
 			entry.Description = t[2]
 
-			tempAmmount, err := strconv.ParseFloat(t[1], 32)
+			tempAmount, err := strconv.ParseFloat(t[1], 32)
 			if err != nil {
 				log.Fatal(err)
 			}
-			entry.Ammount = float32(math.Abs(tempAmmount))
+			entry.Amount = float32(math.Abs(tempAmount))
 
-			if tempAmmount <= 0 {
+			if tempAmount <= 0 {
 				entry.Debit = true
 			}
 
@@ -106,7 +106,7 @@ func (t TransactionList) Contains(sub string) TransactionList {
 func (t TransactionList) LessThan(bar float32) TransactionList {
 	var filteredList TransactionList
 	for _, entry := range t {
-		if entry.Ammount < bar {
+		if entry.Amount < bar {
 			filteredList = append(filteredList, entry)
 		}
 	}
@@ -116,7 +116,7 @@ func (t TransactionList) LessThan(bar float32) TransactionList {
 func (t TransactionList) GreaterThan(bar float32) TransactionList {
 	var filteredList TransactionList
 	for _, entry := range t {
-		if entry.Ammount > bar {
+		if entry.Amount > bar {
 			filteredList = append(filteredList, entry)
 		}
 	}
@@ -126,7 +126,7 @@ func (t TransactionList) GreaterThan(bar float32) TransactionList {
 func (t TransactionList) EqualTo(bar float32) TransactionList {
 	var filteredList TransactionList
 	for _, entry := range t {
-		if entry.Ammount == bar {
+		if entry.Amount == bar {
 			filteredList = append(filteredList, entry)
 		}
 	}
@@ -153,6 +153,16 @@ func (t TransactionList) Before(date time.Time) TransactionList {
 	return filteredList
 }
 
+func (t TransactionList) On(date time.Time) TransactionList {
+	var filteredList TransactionList
+	for _, entry := range t {
+		if entry.Date.Before(date.AddDate(0, 0, 1)) && entry.Date.After(date.AddDate(0, 0, -1)) {
+			filteredList = append(filteredList, entry)
+		}
+	}
+	return filteredList
+}
+
 func (t TransactionList) Count() int {
 	return len(t)
 }
@@ -160,7 +170,11 @@ func (t TransactionList) Count() int {
 func (t TransactionList) Total() float32 {
 	var total float32
 	for _, entry := range t {
-		total += entry.Ammount
+		total += entry.Amount
 	}
 	return total
+}
+
+func (t TransactionList) Average() float32 {
+	return t.Total() / float32(t.Count())
 }
